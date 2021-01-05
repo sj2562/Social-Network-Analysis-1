@@ -1,0 +1,201 @@
+---
+title: "Social Network Analysis"
+author: "Suwon Jung"
+date: "4/27/2020"
+output: html_document
+---
+
+## Goal:
+Generating and analyzing three social networks (also known as graphs or sociograms) based on three different measures
+
+## Data Source: 
+
+Representing Classroom Social Structure. Melbourne: Victoria Institute of
+Secondary Education, M. Vickers and S. Chan, (1981)
+
+Available from the Index of Complex Networks ([ICON](https://icon.colorado.edu/#!/))
+
+The data were collected by Vickers & Chan from 29 seventh grade students in a school in Victoria, Australia. Students were asked to nominate their classmates on a number of relations including the following three "layers":  
+
+1. Who do you get on with in the class?  
+2. Who are your best friends in the class?  
+3. Who would you prefer to work with?  
+
+## Data Wrangling
+
+Manipulate each of the data sets so that it is suitable for building a social network using iGraph.
+
+```{r}
+#load packages 
+library(dplyr)
+library(tidyr)
+
+#import data
+bestfriend <- read.csv("best.friends.csv")
+getonwith <- read.csv("get.on.with.csv")
+workwith <- read.csv("work.with.csv")
+
+# best friend
+bestfriend <- bestfriend[,-1]
+  #edge
+edge_bf <- count(bestfriend, from, to)
+names(edge_bf) <- c("from", "to", "count")
+  #vertex
+vertex_bf <- bestfriend[,c(1,3)]
+vertex_bf <- unique(vertex_bf)
+names(vertex_bf) <- c("id", "gender")
+
+# get on with 
+getonwith <- getonwith[,-1]
+  #edge
+edge_gow <- count(getonwith, from, to)
+names(edge_gow) <- c("from", "to", "count")
+  #vertex
+vertex_gow <- getonwith[,c(1,3)]
+vertex_gow <- unique(vertex_gow)
+names(vertex_gow) <- c("id", "gender")
+
+# work with
+workwith <- workwith[,-1]
+  #edge
+edge_ww <- count(workwith, from, to)
+names(edge_ww) <- c("from", "to", "count")
+  #vertex
+vertex_ww <- workwith[,c(1,3)]
+vertex_ww  <- unique(vertex_ww )
+names(vertex_ww ) <- c("id", "gender")
+
+```
+
+## Visualize the Networks
+
+Create a graph for each of the data sets, are the graphs directed or undirected? Visualize each of the graphs you have created and color the nodes according to gender.
+
+```{r}
+#load package
+#install.packages('igraph')
+library(igraph)
+
+#graph of best
+g_bf <- graph.data.frame(edge_bf, directed=TRUE, vertices=vertex_bf)
+#graph of get on with
+g_gow <- graph.data.frame(edge_gow, directed=TRUE, vertices=vertex_gow)
+#graph of work with
+g_ww <- graph.data.frame(edge_ww, directed=TRUE, vertices=vertex_ww)
+
+#plot the graphs
+plot_bf<-plot(g_bf, layout = layout.fruchterman.reingold,
+             vertex.color = vertex_bf$gender.from, 
+             vertex.size=15, edge.arrow.size=0.2, edge.width=edge_bf$count)
+
+plot_gow<-plot(g_gow, layout = layout.fruchterman.reingold,
+             vertex.color = vertex_gow$gender.from, 
+             vertex.size=15, edge.arrow.size=0.2, edge.width=edge_gow$count)
+
+plot_ww<-plot(g_ww, layout = layout.fruchterman.reingold,
+             vertex.color = vertex_ww$gender.from, 
+             vertex.size=15, edge.arrow.size=0.2, edge.width=edge_ww$count)
+
+ pdf("SocialNetworkAnalysis_JUNG.pdf", paper = 'letter', onefile=TRUE)
+```
+
+## Centrality Measures
+
+Who in the class has the highest degree centrality for each measure?
+```{r}
+
+## Degree Centrality
+
+bf_degree <- degree(g_bf)
+gow_degree <- degree(g_gow)
+ww_degree <- degree(g_ww)
+
+which(bf_degree==max(bf_degree)) 
+  #ID 8 has the highest degree centrality in best friend network
+which(gow_degree==max(gow_degree)) 
+  #ID 11 has the highest degree centrality in get on wth netwrok
+which(ww_degree==max(ww_degree)) 
+  #ID 6 has the higherst degree centrality in work with network
+
+```
+
+Who in the class has the highest closeness centrality?
+
+```{r}
+
+## Betweenness Centrality
+
+bf_close <- closeness(g_bf)
+gow_close <- closeness(g_gow)
+ww_close <- closeness(g_ww)
+
+which(bf_close==max(bf_close))
+  #ID 8 has the highest closeness cen trality in best friend network
+which(gow_close==max(gow_close))
+  #ID 8 and 11 have the highest closeness centrality in get on with network
+which(ww_close==max(ww_close))
+  #ID 9 has the highest closeness cen trality in work with network
+
+```
+
+## Simple structures
+
+Count the number of dyads and the number and type of triads using the following commands.
+```{r}
+dyad_census(g_bf)
+dyad_census(g_gow)
+dyad_census(g_ww)
+```
+[Documentation](http://igraph.org/r/doc/dyad_census.html)
+
+```{r}
+triad_census(g_bf)
+triad_census(g_gow)
+triad_census(g_ww)
+```
+[Documentation](http://igraph.org/r/doc/triad_census.html)
+
+## Cliques
+
+Answer the following questions using the [clique functions](http://igraph.org/r/doc/cliques.html)
+
+What is the size of the largest clique(s) in each of the three networks?
+
+```{r}
+clique_num(g_bf)
+  #the size of the largest cluques in best friend netwrok is 7
+clique_num(g_gow)
+  #the size of the largest cluques in best friend netwrok is 12
+clique_num(g_ww)
+  #the size of the largest cluques in best friend netwrok is 9
+
+```
+
+Which nodes/vertices are in the largest cliques for the three networks? Is there much overlap?
+
+```{r}
+largest.cliques(g_bf)
+largest.cliques(g_gow)
+largest.cliques(g_ww)
+```
+
+How many **maximal cliques** are there in each of the networks?
+
+```{r}
+count_max_cliques(g_bf)
+  #largest clique is 35 in best friend network
+count_max_cliques(g_gow)
+  #largest clique is 64 in get on with network
+count_max_cliques(g_ww)
+  #largest clique is 36 in work with network
+```
+
+## Components & Cutpoints
+
+Find the cutpoints (articulation points) for each of the three networks you generated. What does this tell you about the graphs? Does what you find match a visual exploration of the networks?
+
+## Putting it all together
+
+Write a narrative description of the social ties among members of this 7th grade class using the network, centrality and structural metrics you have developed. Can you provide any recommendations to the teacher of this class based on your analysis? What other information would you want to know? Can you remeber being in seventh grade, does this refelct your experience?
+
+```{r}
