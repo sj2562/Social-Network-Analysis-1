@@ -194,8 +194,10 @@ count_max_cliques(g_ww)
 
 Find the cutpoints (articulation points) for each of the three networks you generated. What does this tell you about the graphs? Does what you find match a visual exploration of the networks?
 
+
 ## Putting it all together
 
-Write a narrative description of the social ties among members of this 7th grade class using the network, centrality and structural metrics you have developed. Can you provide any recommendations to the teacher of this class based on your analysis? What other information would you want to know? Can you remeber being in seventh grade, does this refelct your experience?
+Write a narrative description of the social ties among members of this 7th grade class using the network, centrality and structural metrics you have developed. Can you provide any recommendations to the teacher of this class based on your analysis? What other information would you want to know? Can you remeber being in seventh grade, does this refelct your experience? 
+
 
 ```{r}
