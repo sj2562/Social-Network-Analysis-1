@@ -57,7 +57,7 @@ names(vertex_gow) <- c("id", "gender")
 
 # work with
 workwith <- workwith[,-1]
-  #edge
+  #edge 
 edge_ww <- count(workwith, from, to)
 names(edge_ww) <- c("from", "to", "count")
   #vertex
