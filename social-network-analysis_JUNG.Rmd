@@ -64,7 +64,7 @@ names(edge_ww) <- c("from", "to", "count")
 vertex_ww <- workwith[,c(1,3)]
 vertex_ww  <- unique(vertex_ww )
 names(vertex_ww ) <- c("id", "gender")
-
+   
 ```
 
 ## Visualize the Networks
